@@ -1,0 +1,8 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: ms-speech-service
+  main:
+    web-application-type: servlet
