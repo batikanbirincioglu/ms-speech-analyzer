@@ -6,13 +6,10 @@ import com.example.speech.analyzer.MostSecurityAnalyzer;
 import com.example.speech.analyzer.MostSpeechesAnalyzer;
 import com.example.speech.dto.SpeechEvaluationResult;
 import com.example.speech.model.SpeechData;
-import com.opencsv.CSVReader;
+import com.example.speech.utils.IoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -28,7 +25,7 @@ public class SpeechService {
     public SpeechEvaluationResult evaluate(Map<String, String> urlMap) {
         urlMap = validateQueryParameterNames(urlMap);
 
-        Map<String, List<List<String>>> fileContents = urlMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,entry -> this.readCsv(entry.getValue())));
+        Map<String, List<List<String>>> fileContents = urlMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,entry -> IoUtils.readCsvFromUrl(entry.getValue())));
         Map<String, List<SpeechData>> speechDataMap = getSpeechDataMap(fileContents);
         List<SpeechData> speechDataList = speechDataMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
 
@@ -85,28 +82,6 @@ public class SpeechService {
             return Integer.parseInt(line.get(3));
         } catch (Exception e) {
             throw new RuntimeException(String.format("Line[%s] defined in url :: %s doesn't have 'words' token that is numeric", line, url));
-        }
-    }
-
-    protected List<List<String>> readCsv(String url) {
-        List<List<String>> fileContent;
-        try (CSVReader csvReader = new CSVReader(new InputStreamReader(getUrlConnection(url).getInputStream()))) {
-            fileContent = csvReader.readAll().stream().map(line -> Arrays.stream(line).collect(Collectors.toList())).collect(Collectors.toList());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException();
-        }
-        return fileContent;
-    }
-
-    protected URLConnection getUrlConnection(String url) {
-        try {
-            URL urlObject = new URL(url);
-            URLConnection urlConnection = urlObject.openConnection();
-            return urlConnection;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException();
         }
     }
 }

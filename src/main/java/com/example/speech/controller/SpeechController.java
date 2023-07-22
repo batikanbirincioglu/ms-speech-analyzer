@@ -40,4 +40,14 @@ public class SpeechController {
                 "mert,topic-3,2018-09-10,2";
         return new ResponseEntity<>(data.getBytes("ISO8859-15"), responseHeaders, HttpStatus.OK);
     }
+
+    @GetMapping("/csv/2")
+    public ResponseEntity<byte[]> getCsv2() throws UnsupportedEncodingException {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.add("Content-Type", "application/vnd.ms-excel");
+        responseHeaders.add("Content-Disposition", "attachment; filename=csv2.csv");
+
+        String data = "john,topic-5,2022-06-10,1";
+        return new ResponseEntity<>(data.getBytes("ISO8859-15"), responseHeaders, HttpStatus.OK);
+    }
 }
